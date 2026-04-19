@@ -25,9 +25,13 @@ OdinUP relies on systemic integration. It does not reinvent standard operations.
 * **Native Extraction:** It invokes `tar` and `unzip`. These utilities ship natively on modern Windows, macOS, and Linux.
 * **Path Preservation:** It builds executable wrapper shims instead of raw symlinks. This ensures Odin's standard library resolves accurately against the specific downloaded version.
 
-## Installation
+## Script Installion (Coming Soon)
 
-### Script Installion (Coming Soon)
+If you are wondering when the **Script Installer** will come so don't worry.
+
+OdinUP is promising tool, you will see it as soon as possible.
+
+## Installation from Source
 
 You need an existing Odin compiler to build the manager the first time. Once built, OdinUP becomes entirely self-sufficient.
 
