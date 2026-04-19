@@ -10,11 +10,12 @@ OdinUP handles the toolchain. You write the code.
 
 ## Table of Contents
 1. The Architecture
-2. Installation
-3. Command Reference
-4. The Wrapper System Logic
-5. Project Anatomy
-6. Troubleshooting
+2. Script Installation
+3. Installation from Source
+4. Command Reference
+5. The Wrapper System Logic
+6. Project Anatomy
+7. Troubleshooting
 
 ## The Architecture
 
@@ -25,11 +26,61 @@ OdinUP relies on systemic integration. It does not reinvent standard operations.
 * **Native Extraction:** It invokes `tar` and `unzip`. These utilities ship natively on modern Windows, macOS, and Linux.
 * **Path Preservation:** It builds executable wrapper shims instead of raw symlinks. This ensures Odin's standard library resolves accurately against the specific downloaded version.
 
-## Script Installation (Coming Soon)
+## Script Installation
 
-If you are wondering when the **Script Installer** will come so don't worry.
+The fastest way to get OdinUP running. One command downloads the correct binary for your system, installs it, and configures your shell automatically.
 
-OdinUP is promising tool, you will see it as soon as possible.
+### Linux and macOS
+
+Open your terminal and run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/prathmeshcodes-ai/odinup/main/install.sh | bash
+```
+
+The installer will:
+- Detect your OS and CPU architecture automatically
+- Fetch the latest release from GitHub
+- Install the binary to `~/.odinup/bin/`
+- Add OdinUP to your shell PATH permanently (`~/.bashrc`, `~/.zshrc`, etc.)
+
+After installation, restart your terminal or run:
+
+```bash
+source ~/.bashrc
+```
+
+Then verify it works:
+
+```bash
+odinup help
+```
+
+### Windows (PowerShell)
+
+Open PowerShell and run:
+
+```powershell
+irm https://raw.githubusercontent.com/prathmeshcodes-ai/odinup/main/install.ps1 | iex
+```
+
+The installer will:
+- Detect your CPU architecture automatically
+- Fetch the latest release from GitHub
+- Install the binary to `%USERPROFILE%\.odinup\bin\`
+- Add OdinUP to your Windows User PATH permanently
+
+Open a new terminal and verify:
+
+```powershell
+odinup help
+```
+
+### Updating OdinUP
+
+Running the installer again when OdinUP is already installed will detect your current version and offer to update it automatically. No manual steps required.
+
+---
 
 ## Installation from Source
 
@@ -39,12 +90,12 @@ You need an existing Odin compiler to build the manager the first time. Once bui
 Navigate to your workspace. Compile the source code. The `-o:speed` flag ensures the manager executes with maximum efficiency.
 
 ```bash
-git clone https://github.com/yourusername/odinup.git
+git clone https://github.com/prathmeshcodes-ai/odinup.git
 cd odinup
 odin build . -o:speed 
 ```
 
-**NOTE:** Prebuilt Binary for `linux_amd64` is at `./bin` directory, if you have difrent target so do above steps. 
+**NOTE:** A prebuilt binary for `linux_amd64` is available in the `./bin` directory. If you have a different target, follow the steps above.
 
 ### Step 2: Initialize
 Run the executable once. This generates the hidden `.odinup` directory structure on your machine.
@@ -62,7 +113,7 @@ For Linux and macOS, open your shell profile (`~/.bashrc` or `~/.zshrc`) and app
 export PATH="$HOME/.odinup/bin:$PATH"
 ```
 
-Reload your shell. 
+Reload your shell.
 
 For Windows, add `%USERPROFILE%\.odinup\bin` to your System PATH variables via the Environment Variables GUI.
 
@@ -73,10 +124,10 @@ The command-line interface uses strict, readable output. Color-coded syntax prev
 ### odinup list-remote (lr)
 Queries the official Odin repository. Prints a chronological list of every available release tag.
 
-**Input:** 
+**Input:**
 
 ```bash
-./odinup lr
+odinup lr
 ```
 
 **Output:** A descending list from the latest nightly build down to older legacy versions.
@@ -84,10 +135,10 @@ Queries the official Odin repository. Prints a chronological list of every avail
 ### odinup install `<version>` (i)
 Locates the specific binary for your exact OS and CPU architecture. Downloads it and extracts the payload into your local version registry.
 
-**Input:** 
+**Input:**
 
 ```bash
-./odinup i dev-2026-04
+odinup i dev-2026-04
 ```
 
 **Output:** Progress bar execution followed by extraction verification.
@@ -95,10 +146,10 @@ Locates the specific binary for your exact OS and CPU architecture. Downloads it
 ### odinup list (ls)
 Prints all locally installed compilers. The currently active version is marked with a star and a bold green indicator.
 
-**Input:** 
+**Input:**
 
 ```bash
-./odinup ls
+odinup ls
 ```
 
 **Output:** Your local roster, highlighting the active toolchain.
@@ -106,9 +157,10 @@ Prints all locally installed compilers. The currently active version is marked w
 ### odinup use `<version>` (u)
 Swaps the active compiler. This command generates the execution shim.
 
-**Input:** 
+**Input:**
+
 ```bash
-./odinup use dev-2026-04
+odinup use dev-2026-04
 ```
 
 **Output:** Success confirmation. Your terminal now utilizes the specified version.
@@ -124,7 +176,7 @@ Windows requires Administrator privileges to create symlinks. Forcing a develope
 
 OdinUP bypasses this entirely using Execution Shims.
 
-When you run the use command, the manager creates a physical script inside the binary folder. On Windows, it writes a batch file containing a direct call to the exact executable path. On Linux and macOS, it writes an executable shell script passing process arguments transparently. 
+When you run the use command, the manager creates a physical script inside the binary folder. On Windows, it writes a batch file containing a direct call to the exact executable path. On Linux and macOS, it writes an executable shell script passing process arguments transparently.
 
 The wrapper fires. The compiler boots up knowing its exact location on the hard drive. Path resolution executes perfectly. No admin rights required.
 
