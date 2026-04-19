@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Odi
 
 ---
 
+## [v0.2.1] - 2026-04-19
+
+### Added
+- Ols support is added, usage: use flag `-ols` with list, list-remote, install and use.
+
+### Fixed
+- Fixed Arguments errors when has not sufficient args, now handles well.
+
 ## [v0.1.1] - 2026-04-19
 
 ### Fixed
