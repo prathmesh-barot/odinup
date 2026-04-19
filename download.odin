@@ -5,33 +5,37 @@ import "core:os"
 import "core:strings"
 
 download_asset :: proc(version: string, asset_url: string, dest_file: string) {
-    fmt.printf("Downloading %s from %s...\n", version, asset_url)
+    //fmt.printf("Downloading %s from %s...\n", version, asset_url)
+    fmt.printf("%s📦 Downloading %s...%s\n", CYAN, version, RESET)
+    fmt.printf("%sURL: %s%s\n", "\x1b[90m", asset_url, RESET) // Dim text for URL
     cmd := fmt.tprintf("curl -L --progress-bar \"%s\" -o \"%s\"", asset_url, dest_file)
     if run_command(cmd) != 0 {
-        fmt.eprintln("Error: Failed to download the release asset.")
+        fmt.eprintf("%s✖ Error: Failed to download the release asset.%s\n", RED, RESET)
         os.exit(1)
     }
 }
 
 extract_tar :: proc(archive: string, dest: string) {
+    // cmd := fmt.tprintf("tar -xzf \"%s\" -C \"%s\"", archive, dest)
+    fmt.printf("%s📂 Extracting tar.gz archive...%s\n", YELLOW, RESET)
     cmd := fmt.tprintf("tar -xzf \"%s\" -C \"%s\"", archive, dest)
     if run_command(cmd) != 0 {
-        fmt.eprintln("Error: Failed to extract tar archive.")
+        fmt.eprintf("%s✖ Error: Failed to extract tar archive.%s\n", RED, RESET)
         os.exit(1)
     }
 }
 
 extract_zip :: proc(archive: string, dest: string) {
+    fmt.printf("%s📂 Extracting zip archive...%s\n", YELLOW, RESET)
     cmd := ""
     if ODIN_OS == .Windows {
-        // Windows 10+ built-in tar supports unzipping easily
         cmd = fmt.tprintf("tar -xf \"%s\" -C \"%s\"", archive, dest)
     } else {
         cmd = fmt.tprintf("unzip -q \"%s\" -d \"%s\"", archive, dest)
     }
     
     if run_command(cmd) != 0 {
-        fmt.eprintln("Error: Failed to extract zip archive.")
+        fmt.eprintf("%s✖ Error: Failed to extract zip archive.%s\n", RED, RESET)
         os.exit(1)
     }
 }
