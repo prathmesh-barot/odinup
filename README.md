@@ -27,6 +27,8 @@ OdinUP relies on systemic integration. It does not reinvent standard operations.
 
 ## Installation
 
+### Script Installion (Coming Soon)
+
 You need an existing Odin compiler to build the manager the first time. Once built, OdinUP becomes entirely self-sufficient.
 
 ### Step 1: Clone and Build
