@@ -2,23 +2,40 @@ package odinup
 
 import "core:fmt"
 import "core:os"
+import "core:strings"
 import "core:path/filepath"
 
 list_local :: proc() {
     f, err := os.open(cfg.versions_dir)
     if err != os.ERROR_NONE {
-        fmt.eprintln("Failed to open versions directory")
+        fmt.eprintf("%s✖ Failed to open versions directory%s\n", RED, RESET)
         return
     }
     defer os.close(f)
 
     fi, read_err := os.read_dir(f, -1, context.allocator)
     if read_err != os.ERROR_NONE {
-        fmt.eprintln("Failed to read versions directory")
+        fmt.eprintf("%s✖ Failed to read versions directory%s\n", RED, RESET)
         return
     }
 
-    fmt.println("Installed versions:")
+    // Determine currently active version
+    active_version := ""
+    wrapper_name := "odin"
+    if ODIN_OS == .Windows do wrapper_name = "odin.bat"
+    
+    wrapper_path, _ := filepath.join([]string{cfg.bin_dir, wrapper_name}, context.allocator)
+    if wrapper_data, w_err := os.read_entire_file_from_path(wrapper_path, context.allocator); w_err == nil {
+        wrapper_content := string(wrapper_data)
+        for info in fi {
+            if os.is_dir(info.fullpath) && strings.contains(wrapper_content, info.name) {
+                active_version = info.name
+                break
+            }
+        }
+    }
+
+    fmt.printf("%s📦 Installed versions:%s\n", BOLD, RESET)
     if len(fi) == 0 {
         fmt.println("  (none)")
         return
@@ -26,7 +43,11 @@ list_local :: proc() {
 
     for info in fi {
         if os.is_dir(info.fullpath) {
-            fmt.printf("  %s\n", info.name)
+            if info.name == active_version {
+                fmt.printf("  %s%s ★ %s (Active)%s\n", GREEN, BOLD, info.name, RESET)
+            } else {
+                fmt.printf("    %s\n", info.name)
+            }
         }
     }
 }
@@ -34,7 +55,7 @@ list_local :: proc() {
 use_version :: proc(version: string) {
     version_path, _ := filepath.join([]string{cfg.versions_dir, version}, context.allocator)
     if !os.exists(version_path) {
-        fmt.eprintf("Error: Version '%s' is not installed.\n", version)
+        fmt.eprintf("%s✖ Error: Version '%s' is not installed.%s\n", RED, version, RESET)
         os.exit(1)
     }
 
@@ -45,13 +66,15 @@ use_version :: proc(version: string) {
 
     target_exe := find_executable(version_path, exe_name)
     if target_exe == "" {
-        fmt.eprintf("Error: Could not find Odin executable inside %s\n", version_path)
+        fmt.eprintf("%s✖ Error: Could not find Odin executable inside %s%s\n", RED, version_path, RESET)
         os.exit(1)
     }
 
     create_wrapper_script(target_exe)
     
-    fmt.printf("Successfully set Odin version to: %s\n", version)
+    fmt.printf("%s%s✔ Successfully set Odin version to: %s%s\n", GREEN, BOLD, version, RESET)
+    fmt.printf("\n%sNOTE:%s If your terminal still shows the old version, run:\n", YELLOW, RESET)
+    fmt.printf("  %sexport PATH=\"$HOME/.odinup/bin:$PATH\"%s\n", CYAN, RESET)
 }
 
 find_executable :: proc(base_dir: string, exe_name: string) -> string {

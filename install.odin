@@ -8,7 +8,7 @@ import "core:strings"
 install_version :: proc(version: string) {
     dest_dir, _ := filepath.join([]string{cfg.versions_dir, version}, context.allocator)
     if os.exists(dest_dir) {
-        fmt.printf("Version %s is already installed.\n", version)
+        fmt.printf("%s✔ Version %s is already installed.%s\n", GREEN, version, RESET)
         return
     }
 
@@ -16,7 +16,7 @@ install_version :: proc(version: string) {
     asset_url, asset_name := find_asset_for_platform(releases, version)
     
     if asset_url == "" {
-        fmt.eprintf("Error: Could not find a compatible binary for this OS/Arch for version %s\n", version)
+        fmt.eprintf("%s✖ Error: Could not find a compatible binary for this OS/Arch for version %s%s\n", RED, version, RESET)
         os.exit(1)
     }
 
@@ -34,7 +34,9 @@ install_version :: proc(version: string) {
         extract_tar(tmp_archive, dest_dir)
     }
 
-    fmt.printf("Successfully installed Odin %s!\n", version)
+    //fmt.printf("Successfully installed Odin %s!\n", version)
+    fmt.printf("\n%s%sSuccessfully installed Odin %s!%s\n", GREEN, BOLD, version, RESET)
+    fmt.printf("Type %sodinup use %s%s to activate it.\n", CYAN, version, RESET)
 }
 
 find_asset_for_platform :: proc(releases:[]Github_Release, version: string) -> (url: string, name: string) {
