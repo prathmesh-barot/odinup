@@ -1,6 +1,5 @@
 name: Build and Release OdinUP
 
-# Triggers automatically when you push a tag like v0.1.0
 on:
   push:
     tags:
@@ -11,44 +10,39 @@ jobs:
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false # Prevents the whole pipeline from stopping if 1 target fails!
       matrix:
         include:
-          # 1. Linux 64-bit (Standard)
           - os: ubuntu-latest
             target: linux_amd64
             name: odinup-linux-amd64
             exe: odinup
             setup_cmd: ""
-          
-          # 2. Linux ARM64 (Raspberry Pi, ARM Servers)
+            
           - os: ubuntu-latest
             target: linux_arm64
             name: odinup-linux-arm64
             exe: odinup
-            setup_cmd: "sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu"
-          
-          # 3. macOS 64-bit (Intel Macs)
+            setup_cmd: "sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu lld clang"
+            
           - os: macos-latest
             target: darwin_amd64
             name: odinup-darwin-amd64
             exe: odinup
             setup_cmd: ""
-          
-          # 4. macOS ARM64 (Apple Silicon M1/M2/M3)
+            
           - os: macos-latest
             target: darwin_arm64
             name: odinup-darwin-arm64
             exe: odinup
             setup_cmd: ""
-          
-          # 5. Windows 64-bit (Standard)
+            
           - os: windows-latest
             target: windows_amd64
             name: odinup-windows-amd64
             exe: odinup.exe
             setup_cmd: ""
             
-          # 6. Windows 32-bit (Legacy / i386)
           - os: windows-latest
             target: windows_i386
             name: odinup-windows-i386
@@ -62,9 +56,9 @@ jobs:
       - name: Install Odin Compiler
         uses: laytan/setup-odin@v2
         with:
-          version: "latest"
+          release: "latest" # Fixed the warning from your screenshot
 
-      - name: Install Cross-Linker (Linux ARM only)
+      - name: Install Cross-Linker
         if: matrix.setup_cmd != ''
         run: ${{ matrix.setup_cmd }}
 
@@ -72,7 +66,7 @@ jobs:
         run: odin build . -target:${{ matrix.target }} -out:${{ matrix.exe }} -o:speed
 
       - name: Package Archive (Tar.gz)
-        shell: bash # Forces Windows runner to use bash for tar, ensuring identical formats
+        shell: bash
         run: tar -czf ${{ matrix.name }}.tar.gz ${{ matrix.exe }}
 
       - name: Upload Artifact to Workflow
@@ -86,7 +80,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to allow GitHub to create the Release
+      contents: write
     steps:
       - name: Download all Compiled Archives
         uses: actions/download-artifact@v4
