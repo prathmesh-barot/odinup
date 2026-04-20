@@ -165,3 +165,8 @@ odinup env
 * [download.odin](download.odin)
 * [utils.odin](utils.odin)
 
+## License
+
+OdinUP is released under the **Apache 2.0 License**.
+
+See the [LICENSE](LICENSE)
